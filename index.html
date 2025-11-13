@@ -851,16 +851,6 @@ function getDeviceFingerprint() {
     
     return 'device_' + Math.abs(hash).toString(36);
 }
-    // 验证成功，保存当前卡密
-    currentCard = cardCode;
-    sessionStorage.setItem('currentCard', cardCode);
-
-    // 开始测评
-    document.getElementById('verifyPage').style.display = 'none';
-    document.getElementById('testPage').style.display = 'block';
-    showQuestion();
-}
-
 // 生成设备指纹函数
 function getDeviceFingerprint() {
     const canvas = document.createElement('canvas');
