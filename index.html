@@ -514,7 +514,163 @@ margin: 0 auto;
             .question-card {
                 padding: 25px;
             }
+            /* --- 粘贴到 <style> 标签底部 --- */
         }
+.payment-section {
+    width: 100%;
+    max-width: 450px;
+    margin: 20px auto 0 auto;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+}
+
+.quick-pay-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.payment-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    color: white;
+    transition: transform 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+.payment-btn .icon {
+    margin-right: 8px;
+    font-size: 18px;
+}
+.payment-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+.payment-btn.alipay {
+    background: #00A3EE; /* 支付宝蓝 */
+}
+.payment-btn.wechat {
+    background: #07C160; /* 微信绿 */
+}
+
+.divider-or {
+    text-align: center;
+    color: #aaa;
+    margin: 25px 0;
+    position: relative;
+}
+.divider-or span {
+    background: white;
+    padding: 0 10px;
+    position: relative;
+    z-index: 1;
+}
+.divider-or:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+    z-index: 0;
+}
+
+.scan-title, .transfer-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.qr-code-grid {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    text-align: center;
+}
+.qr-code-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.qr-code-item img {
+    width: 140px;
+    height: 140px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.btn-save {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: #f0f0f0;
+    color: #555;
+    border-radius: 6px;
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.btn-save:hover {
+    background: #e0e0e0;
+}
+
+.scan-tip {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    background: #fafafa;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 20px;
+}
+
+.transfer-payment {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.copy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 12px 15px;
+    border-radius: 8px;
+}
+.copy-item span {
+    font-size: 15px;
+    color: #333;
+    font-weight: 500;
+    word-break: break-all;
+}
+.copy-item button {
+    padding: 8px 14px;
+    border: none;
+    background: #667eea;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+.copy-item button:hover {
+    background: #5a6de0;
+}
+
+/* --- CSS 粘贴结束 --- */
     </style>
 </head>
 <body>
@@ -626,15 +782,52 @@ margin: 0 auto;
                     <p style="color: #2d3436; font-size: 14px; margin-bottom: 20px;">
                         ⏰ 限时优惠价!原价29.9元
                     </p>
-<div style="text-align: center;">
-    <div style="display: inline-block; margin: 0 10px;">
-        <img src="wechat_qrcode.jpg" width="180" alt="微信收款码" style="border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <p style="margin-top: 10px; color: #666; font-size: 14px;">微信支付</p>
+<div class="payment-section">
+    <div class="quick-pay-buttons">
+<a href="https://qr.alipay.com/tsx15981nt9c4aydmvo2h3d" class="payment-btn alipay">
+            <span class="icon">⚡</span> 支付宝快捷支付
+        </a>
+        <a href="javascript:void(0);" onclick="showWechatScan()" class="payment-btn wechat">
+            <span class="icon">⚡</span> 微信快捷支付
+        </a>
     </div>
-    <div style="display: inline-block; margin: 0 10px;">
-        <img src="alipay_qrcode.png" width="180" alt="支付宝收款码" style="border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-        <p style="margin-top: 10px; color: #666; font-size: 14px;">支付宝</p>
+
+    <div class="divider-or"><span>或</span></div>
+
+    <div class="scan-payment">
+        <div class="scan-title">📱 扫码支付</div>
+        <div class="qr-code-grid">
+            <div class="qr-code-item">
+                <img src="wechat_qrcode.jpg" alt="微信收款码" id="wechatQR">
+                <a href="wechat_qrcode.jpg" download="wechat_pay_qr.jpg" class="btn-save">
+                    保存微信码
+                </a>
+            </div>
+            <div class="qr-code-item">
+                <img src="alipay_qrcode.png" alt="支付宝收款码" id="alipayQR">
+                <a href="alipay_qrcode.png" download="alipay_pay_qr.png" class="btn-save">
+                    保存支付宝码
+                </a>
+            </div>
+        </div>
+        <div class="scan-tip">
+            💡 保存后打开APP → 扫一扫 → 相册选择
+        </div>
     </div>
+
+    <div class="divider-or"><span>或</span></div>
+
+   <div class="transfer-payment">
+    <div class="transfer-title">💳 复制账号转账</div>
+    <div class="copy-item">
+        <span id="wechatID">jsh9109</span>
+        <button onclick="copyToClipboard('jsh9109', this)">复制微信</button>
+    </div>
+    <div class="copy-item">
+        <span id="alipayID">18268038020</span>
+        <button onclick="copyToClipboard('18268038020', this)">复制支付宝</button>
+    </div>
+</div>
 </div>
 
                     <div class="upload-section">
@@ -1717,6 +1910,35 @@ function getInfluencers(dim) {
     };
     return influencers[dim] || '行业领军人物';
 }
+        // --- 粘贴到 <script> 标签底部 ---
+
+function showWechatScan() {
+    // 这个函数让页面滚动到微信二维码的位置
+    const qrElement = document.getElementById('wechatQR');
+    if (qrElement) {
+        qrElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // 简单提示
+        alert('微信支付请长按保存二维码，\n然后打开微信扫一扫 → 相册选择');
+    }
+}
+
+function copyToClipboard(text, buttonElement) {
+    navigator.clipboard.writeText(text).then(function() {
+        // 复制成功
+        const originalText = buttonElement.textContent;
+        buttonElement.textContent = '已复制!';
+        buttonElement.style.background = '#07C160'; // 变绿色
+        setTimeout(() => {
+            buttonElement.textContent = originalText;
+            buttonElement.style.background = '#667eea'; // 变回原色
+        }, 2000);
+    }, function(err) {
+        // 复制失败
+        alert('复制失败，请手动复制');
+    });
+}
+
+// --- JS 粘贴结束 ---
     </script>
 </body>
 </html>
