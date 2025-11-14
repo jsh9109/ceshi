@@ -593,8 +593,9 @@ margin: 0 auto;
 
 .qr-code-grid {
     display: flex;
-    justify-content: space-around;
-    gap: 20px;
+    flex-direction: column; /* 改为垂直布局 */
+    align-items: center; /* 让两个码在垂直方向上居中 */
+    gap: 25px; /* 稍微拉开一点垂直间距 */
     text-align: center;
 }
 .qr-code-item {
@@ -735,7 +736,7 @@ margin: 0 auto;
             </div>
 
             <div class="card-input">
-                <input type="text" id="cardCode" placeholder="请输入测评卡密" maxlength="20">
+                <input type="text" id="cardCode" placeholder="请输入测评卡号" maxlength="20">
                 <div class="error-message" id="errorMessage">卡密错误或已使用</div>
             </div>
 
@@ -824,8 +825,8 @@ margin: 0 auto;
         <button onclick="copyToClipboard('jsh9109', this)">复制微信</button>
     </div>
     <div class="copy-item">
-        <span id="alipayID">18268038020</span>
-        <button onclick="copyToClipboard('18268038020', this)">复制支付宝</button>
+        <span id="alipayID">313360631@qq.com</span>
+        <button onclick="copyToClipboard('313360631@qq.com', this)">复制支付宝</button>
     </div>
 </div>
 </div>
