@@ -1193,14 +1193,25 @@ function getDeviceFingerprint() {
             }
         }
 
-        function selectOption(value) {
-            const question = questions[currentQuestion];
-            answers[question.id] = value;
+function selectOption(value) {
+            const question = questions[currentQuestion];
+            answers[question.id] = value; // value 是 0-4, 正确
 
-            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-            event.target.classList.add('selected');
-            document.getElementById('nextBtn').disabled = false;
-        }
+            // 1. 立即高亮显示选中项
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            // 'event.target' 会自动获取用户点击的那个选项
+            event.target.classList.add('selected');
+            
+            // 2. 自动跳转 (添加一个短暂延迟，让用户能看到自己的选择)
+            setTimeout(() => {
+                if (currentQuestion < questions.length - 1) {
+                    nextQuestion();
+                } else {
+                    // 这是最后一道题，调用完成函数
+                    completeTest();
+                }
+            }, 200); // 延迟200毫秒 (0.2秒)，体验更真实
+        }
 
         function prevQuestion() {
             if (currentQuestion > 0) {
