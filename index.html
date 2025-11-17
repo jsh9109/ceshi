@@ -730,7 +730,7 @@ margin: 0 auto;
                     <li>10大天赋维度全面分析 (免费)</li>
                     <li>40道专业测试题目 (免费)</li>
                     <li>个性化能力雷达图 (免费)</li>
-                    <li><strong style="color:#d63031;">50+职业推荐+成长路径 (¥3.9解锁)</strong></li>
+                    <li><strong style="color:#d63031;">50+职业推荐+成长路径 (¥4.9解锁)</strong></li>
                 </ul>
             </div>
 
@@ -781,7 +781,7 @@ margin: 0 auto;
                         <div class="unlock-feature">个性化成长路径规划</div>
                         <div class="unlock-feature">各维度学习资源推荐</div>
                     </div>
-                    <div class="price">¥3.9</div>
+                    <div class="price">¥4.9</div>
                     <p style="color: #2d3436; font-size: 14px; margin-bottom: 20px;">
                         ⏰ 限时优惠价!原价29.9元
                     </p>
@@ -1110,8 +1110,8 @@ function getDeviceFingerprint() {
         }
 
         function showCardManagement() {
-            const count = prompt('生成多少个卡密?(1-100)');
-            if (!count || count < 1 || count > 100) return;
+            const count = prompt('生成多少个卡密?(1-1000)');
+            if (!count || count < 1 || count > 1000) return;
 
             const cards = JSON.parse(localStorage.getItem('talentCards') || '[]');
             const newCards = [];
