@@ -69,21 +69,46 @@
         .btn-prev { background: #f1f2f6; color: #666; }
         .btn-next { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 
-        /* 结果页样式 */
-        .result-header { text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; border-radius: 20px 20px 0 0; margin: -25px -25px 20px -25px; }
+        /* ================= 结果页头部 (核心修复区域) ================= */
+        .result-header { 
+            text-align: center; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            /* 修复：减小上下内边距，变得更紧凑 */
+            padding: 20px 15px; 
+            border-radius: 20px 20px 0 0; 
+            /* 保持贴边 */
+            margin: -25px -25px 20px -25px; 
+        }
         
+        .result-header h2 {
+            /* 修复：减小标题字号和间距 */
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0 0 5px 0;
+            line-height: 1.2;
+        }
+
+        .result-header p {
+            /* 修复：减小副标题字号，消除多余间距 */
+            font-size: 14px;
+            opacity: 0.95;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* 免费分数网格 */
         .free-score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .score-card-mini { background: #f8f9fa; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #ddd; }
+        .score-card-mini { background: #f8f9fa; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #ddd; }
         .score-card-mini.high { border-left-color: #667eea; background: #f0f4ff; }
-        .sc-name { font-size: 14px; color: #555; font-weight: bold; }
-        .sc-val { font-size: 16px; color: #333; font-weight: 800; }
+        .sc-name { font-size: 13px; color: #555; font-weight: bold; }
+        .sc-val { font-size: 15px; color: #333; font-weight: 800; }
 
         .free-analysis-detail { background: #fff; border: 1px solid #eef2ff; border-radius: 12px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .analysis-point { margin-bottom: 15px; font-size: 14px; color: #444; line-height: 1.6; }
         .point-title { color: #667eea; font-weight: bold; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
         .point-tag { background: #eef2ff; color: #667eea; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
 
-        /* 支付卡片 */
         .pay-card { background: #fff; border: 2px solid #ff7675; border-radius: 16px; padding: 25px 15px; text-align: center; margin-top: 30px; }
         .price-tag { font-size: 42px; font-weight: 800; color: #d63031; line-height: 1; margin: 10px 0; }
         
@@ -117,15 +142,14 @@
         .link-info-box { background: white; border-radius: 10px; padding: 15px; margin: 20px 0; text-align: left; }
         .link-val { font-family: monospace; font-weight: bold; background: #F5F5F5; padding: 2px 6px; border-radius: 4px; word-break: break-all; }
         .btn-copy-big { width: 100%; padding: 15px; background: #2E7D32; color: white; border: none; border-radius: 50px; font-size: 16px; font-weight: bold; }
-        
-        .content-box { background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: justify; font-size: 15px; line-height: 1.8; color: #444; }
+        .content-box { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: justify; font-size: 15px; line-height: 1.8; color: #444; }
         .section-title { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 10px; }
         
         /* 职业列表样式 */
-        .job-category { margin-bottom: 20px; }
-        .job-cat-title { font-weight: bold; color: #667eea; margin-bottom: 8px; font-size: 15px; background: #eef2ff; padding: 5px 12px; border-radius: 20px; display: inline-block; }
+        .job-category { margin-bottom: 15px; }
+        .job-cat-title { font-weight: bold; color: #333; margin-bottom: 8px; font-size: 15px; background: #eef2ff; padding: 5px 10px; border-radius: 6px; display: inline-block; }
         .job-list { display: flex; flex-wrap: wrap; gap: 8px; }
-        .job-tag { background: white; border: 1px solid #ddd; padding: 5px 12px; border-radius: 6px; font-size: 13px; color: #555; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .job-tag { background: white; border: 1px solid #ddd; padding: 4px 10px; border-radius: 4px; font-size: 13px; color: #555; }
     </style>
 </head>
 <body>
@@ -156,7 +180,7 @@
             <ul class="feature-list">
                 <li>10大天赋维度全面雷达图分析</li>
                 <li>40道专业心理学测试题目</li>
-                <li><span class="highlight-text">解锁50+精准职业推荐 (限时特惠 ¥0.99)</span></li>
+                <li><span class="highlight-text">解锁50+精准职业推荐 (限时特惠 ¥1.99)</span></li>
                 <li><span class="highlight-text">包含专属天赋变现路径与成长建议</span></li>
             </ul>
         </div>
@@ -214,13 +238,13 @@
                 <div class="lock-overlay">
                     <div style="font-size:40px; margin-bottom:10px;">🔒</div>
                     <p style="color:#555; font-weight:bold; margin-bottom:15px;">解锁查看完整 50+ 职业推荐</p>
-                    <button class="unlock-btn" onclick="scrollToPay()">立即解锁 (仅需 ¥0.99)</button>
+                    <button class="unlock-btn" onclick="scrollToPay()">立即解锁 (仅需 ¥1.99)</button>
                 </div>
             </div>
 
             <div id="paySection" class="pay-card">
                 <div style="font-size:16px; font-weight:bold; color:#333;">解锁完整天赋报告 + 职业指南</div>
-                <div class="price-tag">¥0.99</div>
+                <div class="price-tag">¥1.99</div>
                 <div style="text-decoration:line-through; color:#999; font-size:14px;">原价 ¥29.9</div>
 
                 <div style="margin:20px 0;">
@@ -318,18 +342,18 @@
         'F': '音乐', 'G': '人际', 'H': '创造', 'I': '动觉', 'J': '内省'
     };
 
-    // 完整的职业数据库 (100+职业)
+    // 职业库
     const careerDB = {
-        'A': ['建筑师', '室内设计师', '城市规划师', '景观设计师', '结构工程师', '测绘工程师', '3D建模师', '航空管制员', '地质勘探员', '舞台美术设计', '陈列设计师', 'VR/AR场景设计师', '无人机飞手', '展会设计师', '包装设计师', '导向标识设计师', '园林设计师', '房产评估师', '考古学家', '导航数据采集员'],
-        'B': ['作家', '编辑', '记者', '文案策划', '公关专员', '翻译', '律师', '编剧', '自媒体博主', '播客主播', '语文教师', '演讲培训师', '脱口秀演员', '剧本杀编剧', '知识付费主理人', '品牌故事官', '歌词创作者', '速记员', '听书配音员', '课程设计师', '综艺策划', '企业内刊主编'],
-        'C': ['软件工程师', '数据分析师', '算法工程师', '财务顾问', '审计师', '精算师', '侦探', '科研人员', '战略咨询师', '量化交易员', '网络安全专家', '区块链工程师', '经济学家', '统计学家', '市场调研分析师', '棋手', '逻辑培训师', '刑侦鉴识人员', '数据库管理员', '投资经理'],
-        'D': ['插画师', '漫画家', '平面设计师', 'UI设计师', '动画师', '游戏原画师', '纹身师', '服装设计师', '摄影师', '视觉总监', '艺术修复师', '字体设计师', '绘本画家', '故事板艺术家', 'NFT艺术家', '珠宝绘图师', '软装搭配师', '花纹设计师', '电影美术指导', '网页设计师'],
-        'E': ['时尚买手', '造型师', '花艺师', '珠宝设计师', '婚礼策划师', '软装设计师', '艺术策展人', '美妆博主', '产品外观设计', '奢侈品鉴定师', '橱窗设计师', '形象顾问', '医美咨询师', '杂志美编', '艺术品经纪人', '古董鉴定师', '香水设计师', '礼仪培训师', '样板间设计师'],
-        'F': ['歌手', '乐手', '作曲家', '编曲师', '录音师', 'DJ', '音乐制作人', '声乐老师', '钢琴调律', '音效设计师', '音乐治疗师', '指挥家', '乐评人', '音乐剧演员', '拟音师', '游戏配乐师', '乐器制造师', '调音师', '音乐版权经理', '唱片企划'],
-        'G': ['人力资源', '销售经理', '心理咨询师', '活动策划', '社群运营', '公关经理', '客服总监', '酒店管理', '导游', '谈判专家', '政务人员', '猎头顾问', '婚礼司仪', '经纪人', '筹款专员', '社区管理者', '调解员', '客诉处理专家', '房产经纪人', '保险规划师', '团购团长'],
-        'H': ['创业者', '产品经理', '广告创意总监', '发明家', 'R&D研发', '商业模式设计师', '风险投资人', '科幻作家', '游戏策划', '创新顾问', '短视频导演', '趋势分析师', '孵化器运营', '头脑风暴引导师', '玩具设计师', '密室逃脱设计师', '体验设计师', '增长黑客', '独立开发者'],
-        'I': ['运动员', '健身教练', '舞蹈演员', '外科医生', '手工艺人', '机械维修师', '厨师', '理疗师', '珠宝工匠', '特技演员', '陶艺师', '按摩师', '瑜伽导师', '潜水教练', '消防员', '牙医', '钟表维修师', '雕塑家', '盲人推拿师', '跑酷教练', '咖啡师'],
-        'J': ['哲学家', '心理学家', '神学家', '职业规划师', '个人成长教练', '独立研究员', '作家(深度类)', '冥想导师', '档案管理员', '图书管理员', '历史学家', '宗教学者', '自由撰稿人', '心理测试研发员', '职业扑克选手', '独立投资人', '瑜伽修行者', '临终关怀师', '传记作家']
+        'A': ['建筑师', '室内设计师', '城市规划师', '景观设计师', '结构工程师', '测绘工程师', '3D建模师', '航空管制员', '地质勘探员', '舞台美术设计', '陈列设计师'],
+        'B': ['作家', '编辑', '记者', '文案策划', '公关专员', '翻译', '律师', '编剧', '自媒体博主', '播客主播', '语文教师', '演讲培训师', '脱口秀演员'],
+        'C': ['软件工程师', '数据分析师', '算法工程师', '财务顾问', '审计师', '精算师', '侦探', '科研人员', '战略咨询师', '量化交易员', '网络安全专家'],
+        'D': ['插画师', '漫画家', '平面设计师', 'UI设计师', '动画师', '游戏原画师', '纹身师', '服装设计师', '摄影师', '视觉总监', '艺术修复师'],
+        'E': ['时尚买手', '造型师', '花艺师', '珠宝设计师', '婚礼策划师', '软装设计师', '艺术策展人', '美妆博主', '产品外观设计', '奢侈品鉴定师'],
+        'F': ['歌手', '乐手', '作曲家', '编曲师', '录音师', 'DJ', '音乐制作人', '声乐老师', '钢琴调律', '音效设计师', '音乐治疗师'],
+        'G': ['人力资源', '销售经理', '心理咨询师', '活动策划', '社群运营', '公关经理', '客服总监', '酒店管理', '导游', '谈判专家', '政务人员'],
+        'H': ['创业者', '产品经理', '广告创意总监', '发明家', 'R&D研发', '商业模式设计师', '风险投资人', '科幻作家', '游戏策划', '创新顾问'],
+        'I': ['运动员', '健身教练', '舞蹈演员', '外科医生', '手工艺人', '机械维修师', '厨师', '理疗师', '珠宝工匠', '特技演员', '陶艺师'],
+        'J': ['哲学家', '心理学家', '神学家', '职业规划师', '个人成长教练', '独立研究员', '作家(深度类)', '冥想导师', '档案管理员', '图书管理员']
     };
 
     const questions = [
@@ -407,20 +431,15 @@
     function selectOption(val) {
         const q = questions[currentQuestion];
         answers[q.id] = val;
-        
         const opts = document.querySelectorAll('.option');
         opts.forEach(o => o.classList.remove('selected'));
         event.target.classList.add('selected');
-
-        setTimeout(() => {
-            nextQ(true);
-        }, 200);
+        setTimeout(() => { nextQ(true); }, 200);
     }
 
     function nextQ(isAuto=false) {
         if(!isAuto && answers[questions[currentQuestion].id] === undefined) return alert('请选择一个选项');
         if(isAuto && answers[questions[currentQuestion].id] === undefined) return;
-
         if (currentQuestion < questions.length - 1) {
             currentQuestion++;
             showQuestion();
@@ -496,25 +515,16 @@
         window.scrollTo(0,0);
     }
 
-    function scrollToPay() {
-        document.getElementById('paySection').scrollIntoView({behavior:'smooth'});
-    }
-    
-    function scrollToQR() {
-        document.querySelector('.qr-section').scrollIntoView({behavior:'smooth'});
-    }
-
-    function aliPay() {
-        window.location.href = CONFIG.ALIPAY_URL;
-    }
+    function scrollToPay() { document.getElementById('paySection').scrollIntoView({behavior:'smooth'}); }
+    function scrollToQR() { document.querySelector('.qr-section').scrollIntoView({behavior:'smooth'}); }
+    function aliPay() { window.location.href = CONFIG.ALIPAY_URL; }
 
     function handleUpload(e) {
         if(e.target.files.length === 0) return;
         document.querySelector('.upload-btn').innerText = '⏳ 正在生成报告...';
-        
         fetch(`https://sctapi.ftqq.com/${CONFIG.SERVER_KEY}.send`, {
             method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ title: '💰新订单-天赋测评-0.99', desp: `卡号:${currentCard}\n文件:${e.target.files[0].name}` })
+            body: JSON.stringify({ title: '💰新订单-天赋测评-1.99', desp: `卡号:${currentCard}\n文件:${e.target.files[0].name}` })
         }).catch(()=>{});
 
         setTimeout(() => {
@@ -539,23 +549,16 @@
             <p>这种组合非常罕见，通常出现在该领域的专家或创新者身上。</p>
         `;
 
-        // 核心：完整展示所有职业
-        let jobHtml = '<div style="margin-bottom:20px; color:#666;">基于您的Top3天赋，为您匹配了以下职业方向：</div>';
-        
+        let jobHtml = '<div class="job-category">';
         top3.forEach((item, index) => {
             const dimCode = item[0];
             const dimName = dimensionNames[dimCode];
             const jobs = careerDB[dimCode] || [];
-            
-            jobHtml += `
-                <div class="job-category">
-                    <div class="job-cat-title">基于【${dimName}】天赋推荐：</div>
-                    <div class="job-list">
-                        ${jobs.map(job => `<span class="job-tag">${job}</span>`).join('')}
-                    </div>
-                </div>
-            `;
+            jobHtml += `<div class="job-cat-title">基于【${dimName}】天赋推荐：</div><div class="job-list">`;
+            jobHtml += jobs.map(job => `<span class="job-tag">${job}</span>`).join('');
+            jobHtml += `</div><br>`;
         });
+        jobHtml += '</div>';
 
         document.getElementById('careerAdvice').innerHTML = jobHtml;
 
@@ -571,6 +574,7 @@
         `;
     }
 
+    // 修复雷达图显示具体分数
     function drawChart(id, scores) {
         const ctx = document.getElementById(id);
         const chartStatus = Chart.getChart(id);
@@ -594,8 +598,32 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scales: { r: { min: 0, max: 20, ticks: {display:false} } },
-                plugins: { legend: {display:false} }
+                scales: { 
+                    r: { 
+                        min: 0, 
+                        max: 20, 
+                        ticks: {
+                            display: true,
+                            stepSize: 5
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 11 // 修复: 稍微调小字体适配紧凑布局
+                            }
+                        }
+                    } 
+                },
+                plugins: { 
+                    legend: {display:false},
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.formattedValue + '分';
+                            }
+                        }
+                    }
+                }
             }
         });
     }
