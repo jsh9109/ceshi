@@ -69,43 +69,17 @@
         .btn-prev { background: #f1f2f6; color: #666; }
         .btn-next { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 
-        /* ================= 结果页头部 (核心修复区域) ================= */
-        .result-header { 
-            text-align: center; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            /* 修复：减小上下内边距，变得更紧凑 */
-            padding: 20px 15px; 
-            border-radius: 20px 20px 0 0; 
-            /* 保持贴边 */
-            margin: -25px -25px 20px -25px; 
-        }
+        /* 结果页样式 */
+        .result-header { text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; border-radius: 20px 20px 0 0; margin: -25px -25px 20px -25px; }
         
-        .result-header h2 {
-            /* 修复：减小标题字号和间距 */
-            font-size: 22px;
-            font-weight: 800;
-            margin: 0 0 5px 0;
-            line-height: 1.2;
-        }
-
-        .result-header p {
-            /* 修复：减小副标题字号，消除多余间距 */
-            font-size: 14px;
-            opacity: 0.95;
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        /* 免费分数网格 */
-        .free-score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .free-score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
         .score-card-mini { background: #f8f9fa; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #ddd; }
         .score-card-mini.high { border-left-color: #667eea; background: #f0f4ff; }
         .sc-name { font-size: 13px; color: #555; font-weight: bold; }
         .sc-val { font-size: 15px; color: #333; font-weight: 800; }
 
-        .free-analysis-detail { background: #fff; border: 1px solid #eef2ff; border-radius: 12px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .analysis-point { margin-bottom: 15px; font-size: 14px; color: #444; line-height: 1.6; }
+        .free-analysis-detail { background: #fff; border: 1px solid #eef2ff; border-radius: 12px; padding: 15px; margin: 15px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .analysis-point { margin-bottom: 10px; font-size: 14px; color: #444; line-height: 1.5; }
         .point-title { color: #667eea; font-weight: bold; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
         .point-tag { background: #eef2ff; color: #667eea; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
 
@@ -150,6 +124,12 @@
         .job-cat-title { font-weight: bold; color: #333; margin-bottom: 8px; font-size: 15px; background: #eef2ff; padding: 5px 10px; border-radius: 6px; display: inline-block; }
         .job-list { display: flex; flex-wrap: wrap; gap: 8px; }
         .job-tag { background: white; border: 1px solid #ddd; padding: 4px 10px; border-radius: 4px; font-size: 13px; color: #555; }
+
+        /* 新增：招募学徒样式 */
+        .recruit-card { background: #f8f9ff; border: 1px dashed #667eea; border-radius: 12px; padding: 15px; text-align: center; margin-top: 30px; }
+        .recruit-copy-box { display: flex; align-items: center; justify-content: center; gap: 10px; background: white; padding: 8px 15px; border-radius: 20px; width: fit-content; margin: 10px auto 0 auto; border: 1px solid #eef2ff; }
+        .copy-btn-orange { background: #FF9800; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
     </style>
 </head>
 <body>
@@ -215,12 +195,12 @@
         </div>
 
         <div style="padding: 0 20px 20px 20px;">
-            <div style="height:300px; position:relative; width:100%;">
+            <div style="height:260px; position:relative; width:100%;">
                 <canvas id="radarChart"></canvas>
             </div>
 
-            <div style="margin-top:20px;">
-                <h3 style="font-size:16px; color:#333; margin-bottom:10px;">📊 10大维度详细得分</h3>
+            <div style="margin-top:15px;">
+                <h3 style="font-size:15px; color:#333; margin-bottom:8px;">📊 10大维度详细得分</h3>
                 <div class="free-score-grid" id="allScoresGrid"></div>
             </div>
 
@@ -287,6 +267,16 @@
                     3. 系统核验后<strong>自动跳转</strong>显示完整报告
                 </div>
             </div>
+
+            <div class="recruit-card">
+                <div style="font-weight:bold; color:#667eea; margin-bottom:5px;">📢 招心理测试项目学徒</div>
+                <div style="color:#666; font-size:13px;">项目实操 · 流量变现 · 长期带教</div>
+                <div class="recruit-copy-box">
+                    <span style="font-weight:bold; color:#333;">HCH91178</span>
+                    <span style="color:#999; font-size:12px;">(备注:学习测试)</span>
+                    <button class="copy-btn-orange" onclick="copyWx()">复制</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -318,6 +308,16 @@
         <div class="report-section">
             <h3 class="section-title">📈 个性化成长路径</h3>
             <div class="content-box" id="growthPath"></div>
+        </div>
+
+        <div class="recruit-card">
+            <div style="font-weight:bold; color:#667eea; margin-bottom:5px;">📢 招心理测试项目学徒</div>
+            <div style="color:#666; font-size:13px;">项目实操 · 流量变现 · 长期带教</div>
+            <div class="recruit-copy-box">
+                <span style="font-weight:bold; color:#333;">HCH91178</span>
+                <span style="color:#999; font-size:12px;">(备注:学习测试)</span>
+                <button class="copy-btn-orange" onclick="copyWx()">复制</button>
+            </div>
         </div>
 
         <div style="text-align:center; margin-top:30px; color:#999; font-size:12px; padding-top:20px; border-top:1px solid #eee;">
@@ -505,10 +505,10 @@
             </div>
             <p class="analysis-point">数据表明，你在 <strong>${top1Name}</strong> 维度超越了 92% 的测试者，这赋予了你极强的直觉和敏锐度。结合你的第二优势 <strong>${top2Name}</strong>，你非常适合从事那些需要深度思考与执行力结合的工作。</p>
             
-            <div class="point-title" style="margin-top:20px;">
+            <div class="point-title" style="margin-top:12px;">
                 <span class="point-tag" style="background:#fff0f0; color:#d63031;">潜在瓶颈</span>
             </div>
-            <p class="analysis-point">但值得注意的是，你的 <strong>${dimensionNames[sorted[9][0]]}</strong> 得分较低，这可能是限制你目前职业突破的关键隐形短板。建议查看完整报告中的【避坑指南】。</p>
+            <p class="analysis-point" style="margin-bottom:0;">但值得注意的是，你的 <strong>${dimensionNames[sorted[9][0]]}</strong> 得分较低，这可能是限制你目前职业突破的关键隐形短板。建议查看完整报告中的【避坑指南】。</p>
         `;
 
         window.scrollTo(0,0);
@@ -625,6 +625,13 @@
                 }
             }
         });
+    }
+
+    function copyWx() { 
+        navigator.clipboard.writeText("HCH91178").then(()=>{
+            alert('微信号已复制！\n即将跳转微信...'); 
+            setTimeout(()=>{ window.location.href="weixin://"; }, 500);
+        }).catch(()=>alert('复制失败，请手动复制')); 
     }
 
     function copyTxt(t) { navigator.clipboard.writeText(t).then(()=>alert('复制成功')).catch(()=>alert('复制失败')); }
