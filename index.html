@@ -100,8 +100,8 @@
         .unlock-btn { background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%); color: white; border: none; padding: 12px 30px; border-radius: 50px; font-size: 16px; font-weight: bold; box-shadow: 0 6px 20px rgba(238, 82, 83, 0.4); cursor: pointer; animation: bounce 2s infinite; }
         @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-5px);} }
         
-        .quick-pay-btn { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; color: white; font-weight: bold; font-size: 1.05em; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
-        .btn-ali { background: #00A0E9; }
+        .quick-pay-btn { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: none; color: white; font-weight: bold; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        .btn-ali { background: #1677FF; }
         .btn-wx { background: #07C160; }
         
         .copy-box { background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: left; }
@@ -209,7 +209,7 @@
         <div id="adminContent" class="hidden" style="margin-top:20px;">
             <div class="admin-stat">
                 <div style="font-size:24px; font-weight:bold; color:#667eea;" id="validCount">0</div>
-                <div style="font-size:12px; color:#666;">总生成卡密数 (累计)</div>
+                <div style="font-size:12px; color:#666;">可用卡密 (通用)</div>
             </div>
             
             <div style="margin-top:15px;">
@@ -342,4 +342,469 @@
     </div>
 
     <div id="detailedPage" class="card hidden">
-        <div class
+        <div class="result-header" style="background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);">
+            <h2>✨ 完整深度分析报告</h2>
+            <p id="detailedName">你的天赋详细解读</p>
+        </div>
+
+        <div style="height:300px; position:relative; margin:20px 0;">
+            <canvas id="radarChart2"></canvas>
+        </div>
+
+        <div class="report-section">
+            <h3 class="section-title">📊 综合天赋分析</h3>
+            <div class="content-box" id="overallAnalysis"></div>
+        </div>
+
+        <div class="report-section">
+            <h3 class="section-title">💼 50+ 精准职业发展建议</h3>
+            <div class="content-box" id="careerAdvice"></div>
+        </div>
+
+        <div class="report-section">
+            <h3 class="section-title">🎯 核心优势与提升方向</h3>
+            <div class="content-box" id="strengthsAnalysis"></div>
+        </div>
+
+        <div class="report-section">
+            <h3 class="section-title">📈 个性化成长路径</h3>
+            <div class="content-box" id="growthPath"></div>
+        </div>
+
+        <div class="recruit-card">
+            <div style="font-weight:bold; color:#667eea; margin-bottom:5px;">📢 招心理测试项目学徒</div>
+            <div style="color:#666; font-size:13px;">项目实操 · 流量变现 · 长期带教</div>
+            <div class="recruit-copy-box">
+                <span style="font-weight:bold; color:#333;">HCH91178</span>
+                <span style="color:#999; font-size:12px;">(备注:学习测试)</span>
+                <button class="copy-btn-orange" onclick="copyWx()">复制</button>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:30px; color:#999; font-size:12px; padding-top:20px; border-top:1px solid #eee;">
+            <p>如需帮助请联系客服微信：HCH91178</p>
+            <p>备注：天赋测评</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const CONFIG = {
+        MASTER_CODE: "GEMINI-MASTER",
+        ADMIN_PWD: "lss900201", 
+        SERVER_KEY: "SCT303445TGU9j8Q5VLg6rT7eryLe8L41v",
+        ALIPAY_URL: "https://qr.alipay.com/tsx15981nt9c4aydmvo2h3d"
+    };
+
+    const dimensionNames = {
+        'A': '空间', 'B': '语言', 'C': '逻辑', 'D': '绘画', 'E': '美学',
+        'F': '音乐', 'G': '人际', 'H': '创造', 'I': '动觉', 'J': '内省'
+    };
+
+    // 职业库
+    const careerDB = {
+        'A': ['建筑师', '室内设计师', '城市规划师', '景观设计师', '结构工程师', '测绘工程师', '3D建模师', '航空管制员', '地质勘探员', '舞台美术设计', '陈列设计师'],
+        'B': ['作家', '编辑', '记者', '文案策划', '公关专员', '翻译', '律师', '编剧', '自媒体博主', '播客主播', '语文教师', '演讲培训师', '脱口秀演员'],
+        'C': ['软件工程师', '数据分析师', '算法工程师', '财务顾问', '审计师', '精算师', '侦探', '科研人员', '战略咨询师', '量化交易员', '网络安全专家'],
+        'D': ['插画师', '漫画家', '平面设计师', 'UI设计师', '动画师', '游戏原画师', '纹身师', '服装设计师', '摄影师', '视觉总监', '艺术修复师'],
+        'E': ['时尚买手', '造型师', '花艺师', '珠宝设计师', '婚礼策划师', '软装设计师', '艺术策展人', '美妆博主', '产品外观设计', '奢侈品鉴定师'],
+        'F': ['歌手', '乐手', '作曲家', '编曲师', '录音师', 'DJ', '音乐制作人', '声乐老师', '钢琴调律', '音效设计师', '音乐治疗师'],
+        'G': ['人力资源', '销售经理', '心理咨询师', '活动策划', '社群运营', '公关经理', '客服总监', '酒店管理', '导游', '谈判专家', '政务人员'],
+        'H': ['创业者', '产品经理', '广告创意总监', '发明家', 'R&D研发', '商业模式设计师', '风险投资人', '科幻作家', '游戏策划', '创新顾问'],
+        'I': ['运动员', '健身教练', '舞蹈演员', '外科医生', '手工艺人', '机械维修师', '厨师', '理疗师', '珠宝工匠', '特技演员', '陶艺师'],
+        'J': ['哲学家', '心理学家', '神学家', '职业规划师', '个人成长教练', '独立研究员', '作家(深度类)', '冥想导师', '档案管理员', '图书管理员']
+    };
+
+    const questions = [
+        { id: 1, text: '我能够轻松地在脑海中想象三维物体的样子', dimension: 'A' },
+        { id: 2, text: '我很少迷路,方向感很强', dimension: 'A' },
+        { id: 3, text: '我喜欢拼图、积木等需要空间思维的游戏', dimension: 'A' },
+        { id: 4, text: '我能够快速判断物体之间的距离和位置关系', dimension: 'A' },
+        { id: 5, text: '我擅长用语言表达自己的想法和感受', dimension: 'B' },
+        { id: 6, text: '我喜欢阅读各类书籍,阅读速度较快', dimension: 'B' },
+        { id: 7, text: '我能够轻松记住新学的词汇和表达方式', dimension: 'B' },
+        { id: 8, text: '我喜欢写作,能够流畅地组织文字', dimension: 'B' },
+        { id: 9, text: '我擅长数学计算和逻辑推理', dimension: 'C' },
+        { id: 10, text: '我喜欢解决复杂的问题和谜题', dimension: 'C' },
+        { id: 11, text: '我能够快速发现事物之间的规律和模式', dimension: 'C' },
+        { id: 12, text: '我喜欢用数据和事实来支持我的观点', dimension: 'C' },
+        { id: 13, text: '我喜欢画画,能够准确地描绘我看到的事物', dimension: 'D' },
+        { id: 14, text: '我对线条、形状和构图有较强的感知力', dimension: 'D' },
+        { id: 15, text: '我能够通过视觉艺术表达情感和想法', dimension: 'D' },
+        { id: 16, text: '我经常关注周围环境的视觉细节', dimension: 'D' },
+        { id: 17, text: '我对色彩搭配和视觉美感很敏感', dimension: 'E' },
+        { id: 18, text: '我能够欣赏不同艺术风格的美', dimension: 'E' },
+        { id: 19, text: '我喜欢设计和装饰空间,追求美的体验', dimension: 'E' },
+        { id: 20, text: '我对时尚、设计等美学领域很感兴趣', dimension: 'E' },
+        { id: 21, text: '我对音乐节奏和旋律很敏感', dimension: 'F' },
+        { id: 22, text: '我能够轻松地学会唱歌或演奏乐器', dimension: 'F' },
+        { id: 23, text: '音乐能够深深地触动我的情感', dimension: 'F' },
+        { id: 24, text: '我喜欢创作或改编音乐', dimension: 'F' },
+        { id: 25, text: '我能够轻松地与不同类型的人交流', dimension: 'G' },
+        { id: 26, text: '我擅长理解他人的情绪和需求', dimension: 'G' },
+        { id: 27, text: '我喜欢团队合作,能够协调不同意见', dimension: 'G' },
+        { id: 28, text: '朋友们经常向我寻求建议和帮助', dimension: 'G' },
+        { id: 29, text: '我经常有新奇的想法和创意', dimension: 'H' },
+        { id: 30, text: '我喜欢尝试新事物,不怕失败', dimension: 'H' },
+        { id: 31, text: '我能够从不同角度思考问题', dimension: 'H' },
+        { id: 32, text: '我擅长将不同的想法组合创新', dimension: 'H' },
+        { id: 33, text: '我的身体协调性和运动能力较强', dimension: 'I' },
+        { id: 34, text: '我喜欢通过身体活动来表达自己', dimension: 'I' },
+        { id: 35, text: '我擅长手工制作和精细操作', dimension: 'I' },
+        { id: 36, text: '我能够快速学会新的运动技能', dimension: 'I' },
+        { id: 37, text: '我经常反思自己的行为和想法', dimension: 'J' },
+        { id: 38, text: '我清楚地了解自己的优势和劣势', dimension: 'J' },
+        { id: 39, text: '我喜欢独处,思考人生和价值观', dimension: 'J' },
+        { id: 40, text: '我能够客观地评价自己的表现', dimension: 'J' }
+    ];
+
+    let currentQuestion = 0;
+    let answers = {};
+    let currentCard = '';
+    let currentBatchCards = [];
+
+    // ============ 初始化：检查是否在微信 ============
+    window.onload = function() {
+        const ua = navigator.userAgent.toLowerCase();
+        if(ua.indexOf('micromessenger') !== -1) {
+            document.getElementById('wx-guide').style.display = 'block';
+        }
+    }
+
+    // ============ 卡密验证逻辑 (24小时复用版 + 强壮性修复) ============
+    function verifyCard() {
+        const input = document.getElementById('cardCode').value.trim().toUpperCase();
+        if(!input) return alert('请输入卡号');
+        
+        if(input === CONFIG.MASTER_CODE) {
+            startTest(input);
+            return;
+        }
+
+        const cardRegex = /^TF-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
+        if (!cardRegex.test(input)) {
+            alert('无效的卡号 (格式应为 TF-XXXX-XXXX)');
+            return;
+        }
+
+        // 使用 try-catch 防止 LocalStorage 数据损坏导致的崩溃
+        try {
+            let usageRecords = JSON.parse(localStorage.getItem('talent_usage_v3') || '{}');
+            const now = new Date().getTime();
+
+            if (usageRecords[input]) {
+                const firstUseTime = usageRecords[input];
+                const hoursPassed = (now - firstUseTime) / (1000 * 60 * 60);
+                
+                if (hoursPassed < 24) {
+                    console.log('卡号24小时内复用');
+                    startTest(input);
+                    return;
+                } else {
+                    alert('该卡号已过期（限24小时内重复使用）');
+                    return;
+                }
+            }
+            
+            usageRecords[input] = now;
+            localStorage.setItem('talent_usage_v3', JSON.stringify(usageRecords));
+
+            // 后台状态更新 (仅管理员)
+            const adminCards = JSON.parse(localStorage.getItem('talent_cards_final') || '[]');
+            const adminCardIndex = adminCards.findIndex(c => c.code === input);
+            if(adminCardIndex !== -1) {
+                adminCards[adminCardIndex].used = true;
+                localStorage.setItem('talent_cards_final', JSON.stringify(adminCards));
+            }
+
+            startTest(input);
+        } catch(e) {
+            console.error(e);
+            alert('浏览器存储异常，请尝试清除缓存');
+        }
+    }
+
+    function startTest(code) {
+        currentCard = code;
+        document.getElementById('verifyPage').classList.add('hidden');
+        document.getElementById('testPage').classList.remove('hidden');
+        showQuestion();
+    }
+
+    // ============ 答题逻辑 ============
+    function showQuestion() {
+        const q = questions[currentQuestion];
+        const progress = ((currentQuestion + 1) / questions.length) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('progressText').innerText = `进度：${currentQuestion + 1} / ${questions.length}`;
+        document.getElementById('questionText').innerText = q.text;
+
+        document.getElementById('prevBtn').style.visibility = currentQuestion === 0 ? 'hidden' : 'visible';
+
+        const optionsHtml = ['完全不符','不太符合','一般','比较符合','非常符合'].map((opt, idx) => {
+            const isSel = answers[q.id] === idx ? 'selected' : '';
+            return `<div class="option ${isSel}" onclick="selectOption(${idx})">${opt}</div>`;
+        }).join('');
+        document.getElementById('options').innerHTML = optionsHtml;
+    }
+
+    function selectOption(val) {
+        const q = questions[currentQuestion];
+        answers[q.id] = val;
+        const opts = document.querySelectorAll('.option');
+        opts.forEach(o => o.classList.remove('selected'));
+        event.target.classList.add('selected');
+        setTimeout(() => { nextQ(true); }, 200);
+    }
+
+    function nextQ(isAuto=false) {
+        if(!isAuto && answers[questions[currentQuestion].id] === undefined) return alert('请选择一个选项');
+        if(isAuto && answers[questions[currentQuestion].id] === undefined) return;
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            showQuestion();
+        } else {
+            completeTest();
+        }
+    }
+
+    function prevQ() {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion();
+        }
+    }
+
+    function completeTest() {
+        const scores = {};
+        const counts = {};
+        questions.forEach(q => {
+            const ans = answers[q.id];
+            if(ans !== undefined) {
+                scores[q.dimension] = (scores[q.dimension] || 0) + (ans + 1);
+                counts[q.dimension] = (counts[q.dimension] || 0) + 1;
+            }
+        });
+        Object.keys(scores).forEach(k => {
+            scores[k] = Math.round(scores[k] / counts[k] * 4); 
+        });
+        sessionStorage.setItem('talentResult', JSON.stringify(scores));
+        showResult(scores);
+    }
+
+    function showResult(scores) {
+        document.getElementById('testPage').classList.add('hidden');
+        document.getElementById('resultPage').classList.remove('hidden');
+
+        const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+        const top3 = sorted.slice(0,3);
+        const top3Names = top3.map(s => dimensionNames[s[0]]).join('、');
+
+        document.getElementById('resultName').innerText = `你最具有 ${top3Names} 天赋`;
+        
+        drawChart('radarChart', scores);
+
+        let scoreHtml = '';
+        sorted.forEach((item, index) => {
+            const dimCode = item[0];
+            const score = item[1];
+            const isHigh = index < 3; 
+            scoreHtml += `
+                <div class="score-card-mini ${isHigh ? 'high' : ''}">
+                    <span class="sc-name">${dimensionNames[dimCode]}</span>
+                    <span class="sc-val" style="${isHigh ? 'color:#667eea' : ''}">${score}分</span>
+                </div>
+            `;
+        });
+        document.getElementById('allScoresGrid').innerHTML = scoreHtml;
+
+        const top1Name = dimensionNames[top3[0][0]];
+        const top2Name = dimensionNames[top3[1][0]];
+        document.getElementById('freeAnalysisBox').innerHTML = `
+            <div class="point-title">
+                <span class="point-tag">核心优势</span> 你的天赋组合是极具竞争力的。
+            </div>
+            <p class="analysis-point">数据表明，你在 <strong>${top1Name}</strong> 维度超越了 92% 的测试者，这赋予了你极强的直觉和敏锐度。结合你的第二优势 <strong>${top2Name}</strong>，你非常适合从事那些需要深度思考与执行力结合的工作。</p>
+            <div class="point-title" style="margin-top:12px;">
+                <span class="point-tag" style="background:#fff0f0; color:#d63031;">潜在瓶颈</span>
+            </div>
+            <p class="analysis-point" style="margin-bottom:0;">但值得注意的是，你的 <strong>${dimensionNames[sorted[9][0]]}</strong> 得分较低，这可能是限制你目前职业突破的关键隐形短板。建议查看完整报告中的【避坑指南】。</p>
+        `;
+        window.scrollTo(0,0);
+    }
+
+    function scrollToPay() { document.getElementById('paySection').scrollIntoView({behavior:'smooth'}); }
+    function scrollToQR() { document.querySelector('.qr-section').scrollIntoView({behavior:'smooth'}); }
+    function aliPay() { window.location.href = CONFIG.ALIPAY_URL; }
+
+    function handleUpload(e) {
+        if(e.target.files.length === 0) return;
+        document.querySelector('.upload-btn').innerText = '⏳ 正在生成报告...';
+        fetch(`https://sctapi.ftqq.com/${CONFIG.SERVER_KEY}.send`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ title: '💰新订单-天赋测评-2.99', desp: `卡号:${currentCard}\n文件:${e.target.files[0].name}` })
+        }).catch(()=>{});
+
+        setTimeout(() => {
+            document.getElementById('resultPage').classList.add('hidden');
+            document.getElementById('detailedPage').classList.remove('hidden');
+            renderDetailedReport();
+            window.scrollTo(0,0);
+        }, 1500);
+    }
+
+    function renderDetailedReport() {
+        const scores = JSON.parse(sessionStorage.getItem('talentResult'));
+        const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+        const top3 = sorted.slice(0,3);
+        const top3Names = top3.map(s => dimensionNames[s[0]]).join('、');
+
+        document.getElementById('detailedName').innerText = `你最具有 ${top3Names} 天赋`;
+        drawChart('radarChart2', scores);
+
+        document.getElementById('overallAnalysis').innerHTML = `
+            <p>你是一个<strong>${top3Names}型</strong>的人才。你的核心天赋得分为<strong style="color:#667eea">${top3[0][1]}分</strong>，处于人群前5%水平。</p>
+            <p>这种组合非常罕见，通常出现在该领域的专家或创新者身上。</p>
+        `;
+
+        let jobHtml = '<div class="job-category">';
+        top3.forEach((item, index) => {
+            const dimCode = item[0];
+            const dimName = dimensionNames[dimCode];
+            const jobs = careerDB[dimCode] || [];
+            jobHtml += `<div class="job-cat-title">基于【${dimName}】天赋推荐：</div><div class="job-list">`;
+            jobHtml += jobs.map(job => `<span class="job-tag">${job}</span>`).join('');
+            jobHtml += `</div><br>`;
+        });
+        jobHtml += '</div>';
+
+        document.getElementById('careerAdvice').innerHTML = jobHtml;
+
+        document.getElementById('strengthsAnalysis').innerHTML = `
+            <p><strong>核心优势：</strong>${dimensionNames[top3[0][0]]}能力让你能快速洞察本质，${dimensionNames[top3[1][0]]}能力助你高效执行。</p>
+            <p><strong>潜在风险：</strong>在${dimensionNames[sorted[9][0]]}（${sorted[9][1]}分）方面较弱，建议寻找互补型搭档。</p>
+        `;
+
+        document.getElementById('growthPath').innerHTML = `
+            <p><strong>短期（1-3个月）：</strong>通过专项训练强化${dimensionNames[top3[0][0]]}技能。</p>
+            <p><strong>中期（6-12个月）：</strong>尝试负责一个小项目，验证能力。</p>
+            <p><strong>长期（1-3年）：</strong>成为该领域的独立负责人或专家。</p>
+        `;
+    }
+
+    function drawChart(id, scores) {
+        const ctx = document.getElementById(id).getContext('2d');
+        if(window[id] instanceof Chart) { window[id].destroy(); }
+        const labels = Object.keys(dimensionNames).map(k => dimensionNames[k]);
+        const data = Object.keys(dimensionNames).map(k => scores[k]);
+        window[id] = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '天赋得分',
+                    data: data,
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: '#667eea',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#667eea'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    r: { min: 0, max: 20, ticks: {display: true, stepSize: 5}, pointLabels: {font: {size: 11}} } 
+                },
+                plugins: { legend: {display:false} }
+            }
+        });
+    }
+
+    function copyWx() { 
+        navigator.clipboard.writeText("HCH91178").then(()=>{
+            alert('微信号已复制！\n即将跳转微信...'); 
+            setTimeout(()=>{ window.location.href="weixin://"; }, 500);
+        }).catch(()=>alert('复制失败，请手动复制')); 
+    }
+
+    function copyTxt(t) { navigator.clipboard.writeText(t).then(()=>alert('复制成功')).catch(()=>alert('复制失败')); }
+    
+    // ============ 后台管理系统 ============
+    function showAdminPanel() { 
+        document.getElementById('verifyPage').classList.add('hidden');
+        document.getElementById('adminPage').classList.remove('hidden');
+    }
+
+    function loginAdmin() {
+        const p = document.getElementById('adminPwdInput').value;
+        if(p === CONFIG.ADMIN_PWD) {
+            document.getElementById('adminLoginBox').classList.add('hidden');
+            document.getElementById('adminContent').classList.remove('hidden');
+            renderAdmin();
+        } else {
+            alert('密码错误');
+        }
+    }
+
+    function genCards() {
+        const count = parseInt(document.getElementById('genCount').value);
+        if(!count || count < 1) return alert('请输入数量');
+        
+        let cards = JSON.parse(localStorage.getItem('talent_cards_final') || '[]');
+        currentBatchCards = []; 
+        
+        for(let i=0; i<count; i++) {
+            const code = 'TF-' + Math.random().toString(36).substr(2,4).toUpperCase() + '-' + Math.random().toString(36).substr(2,4).toUpperCase();
+            const newCard = { code: code, used: false, time: new Date().toLocaleString() };
+            currentBatchCards.push(newCard); 
+        }
+        
+        cards = [...currentBatchCards, ...cards];
+        localStorage.setItem('talent_cards_final', JSON.stringify(cards));
+        
+        alert(`成功生成 ${count} 个卡密！\n请点击【导出本次生成】下载`);
+        renderAdmin();
+    }
+
+    function renderAdmin() {
+        const cards = JSON.parse(localStorage.getItem('talent_cards_final') || '[]');
+        const validCount = cards.filter(c => !c.used).length;
+        document.getElementById('validCount').innerText = validCount;
+
+        let html = '';
+        cards.slice(0, 50).forEach(c => {
+            html += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; border-bottom:1px solid #ddd; padding-bottom:2px;">
+                <span style="font-weight:bold; color:${c.used ? '#999' : 'green'}">${c.code}</span>
+                <span>${c.used ? '🔴 已用' : '🟢 未用'}</span>
+            </div>`;
+        });
+        document.getElementById('cardList').innerHTML = html;
+    }
+
+    function exportCurrentBatch() {
+        if(currentBatchCards.length === 0) return alert('暂无新生成的卡密，请先点击生成');
+        const text = currentBatchCards.map(c => c.code).join('\n');
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'talent_cards_new.txt';
+        a.click();
+    }
+
+    function exportAllCards() {
+        const cards = JSON.parse(localStorage.getItem('talent_cards_final') || '[]');
+        if(cards.length === 0) return alert('没有卡密');
+        const text = cards.map(c => c.code).join('\n');
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'talent_cards_all.txt';
+        a.click();
+    }
+</script>
+</body>
+</html>
