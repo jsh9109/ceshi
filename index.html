@@ -125,11 +125,15 @@
         .job-list { display: flex; flex-wrap: wrap; gap: 8px; }
         .job-tag { background: white; border: 1px solid #ddd; padding: 4px 10px; border-radius: 4px; font-size: 13px; color: #555; }
 
-        /* 新增：招募学徒样式 */
+        /* 招募学徒样式 */
         .recruit-card { background: #f8f9ff; border: 1px dashed #667eea; border-radius: 12px; padding: 15px; text-align: center; margin-top: 30px; }
         .recruit-copy-box { display: flex; align-items: center; justify-content: center; gap: 10px; background: white; padding: 8px 15px; border-radius: 20px; width: fit-content; margin: 10px auto 0 auto; border: 1px solid #eef2ff; }
         .copy-btn-orange { background: #FF9800; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
 
+        /* 后台样式 */
+        .admin-stat { background: #f8f9ff; padding:10px; border-radius:8px; margin-bottom:10px; text-align:center; }
+        .admin-btn { width:100%; padding:10px; background:#667eea; color:white; border:none; border-radius:8px; margin-top:10px; cursor:pointer; }
+        .card-list { max-height:200px; overflow-y:auto; background:#f1f1f1; padding:10px; border-radius:8px; font-family:monospace; margin-top:10px; font-size:12px;}
     </style>
 </head>
 <body>
@@ -160,7 +164,7 @@
             <ul class="feature-list">
                 <li>10大天赋维度全面雷达图分析</li>
                 <li>40道专业心理学测试题目</li>
-                <li><span class="highlight-text">解锁50+精准职业推荐 (限时特惠 ¥1.99)</span></li>
+                <li><span class="highlight-text">解锁50+精准职业推荐 (限时特惠 ¥0.99)</span></li>
             </ul>
         </div>
 
@@ -217,13 +221,13 @@
                 <div class="lock-overlay">
                     <div style="font-size:40px; margin-bottom:10px;">🔒</div>
                     <p style="color:#555; font-weight:bold; margin-bottom:15px;">解锁查看完整 50+ 职业推荐</p>
-                    <button class="unlock-btn" onclick="scrollToPay()">立即解锁 (仅需 ¥1.99)</button>
+                    <button class="unlock-btn" onclick="scrollToPay()">立即解锁 (仅需 ¥0.99)</button>
                 </div>
             </div>
 
             <div id="paySection" class="pay-card">
                 <div style="font-size:16px; font-weight:bold; color:#333;">解锁完整天赋报告 + 职业指南</div>
-                <div class="price-tag">¥1.99</div>
+                <div class="price-tag">¥0.99</div>
                 <div style="text-decoration:line-through; color:#999; font-size:14px;">原价 ¥29.9</div>
 
                 <div style="margin:20px 0;">
@@ -326,12 +330,41 @@
         </div>
     </div>
 
+    <div id="adminPage" class="card hidden">
+        <h3 style="text-align:center; margin-bottom:15px;">🔧 后台管理</h3>
+        <input type="password" id="adminPwdInput" placeholder="请输入管理员密码" style="width:100%; padding:10px; margin-bottom:10px; border:1px solid #eee; border-radius:8px;">
+        <button class="btn-start" onclick="loginAdmin()">登录</button>
+        
+        <div id="adminContent" class="hidden" style="margin-top:20px;">
+            <div class="admin-stat">
+                <div style="font-size:24px; font-weight:bold; color:#667eea;" id="validCount">0</div>
+                <div style="font-size:12px; color:#666;">可用卡密</div>
+            </div>
+            
+            <div style="margin-top:15px;">
+                <h4 style="font-size:14px; margin-bottom:8px;">生成新卡密</h4>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="genCount" value="10" style="width:80px; padding:8px; border:1px solid #eee; border-radius:4px;">
+                    <button class="admin-btn" style="margin-top:0;" onclick="genCards()">生成</button>
+                </div>
+            </div>
+
+            <div style="margin-top:15px;">
+                <h4 style="font-size:14px; margin-bottom:8px;">卡密列表 (最新50条)</h4>
+                <div class="card-list" id="cardList"></div>
+            </div>
+            
+            <button onclick="exportCards()" class="admin-btn" style="background:#00b894;">导出所有卡密</button>
+            <button onclick="location.reload()" class="admin-btn" style="background:#ccc; color:#333;">退出后台</button>
+        </div>
+    </div>
+
 </div>
 
 <script>
     const CONFIG = {
         MASTER_CODE: "GEMINI-MASTER",
-        ADMIN_PWD: "admin", 
+        ADMIN_PWD: "lss900201",  // 已修正密码
         SERVER_KEY: "SCT303445TGU9j8Q5VLg6rT7eryLe8L41v",
         ALIPAY_URL: "https://qr.alipay.com/tsx15981nt9c4aydmvo2h3d"
     };
@@ -402,15 +435,46 @@
     let answers = {};
     let currentCard = '';
 
+    // ============ 卡密验证逻辑 (修复) ============
     function verifyCard() {
-        const code = document.getElementById('cardCode').value.trim();
-        if(!code) return alert('请输入卡号');
+        const input = document.getElementById('cardCode').value.trim();
+        if(!input) return alert('请输入卡号');
+        
+        // 万能卡密通道
+        if(input === CONFIG.MASTER_CODE) {
+            startTest(input);
+            return;
+        }
+
+        // 验证卡密有效性
+        const cards = JSON.parse(localStorage.getItem('talent_cards') || '[]');
+        const card = cards.find(c => c.code === input);
+
+        if(!card) {
+            alert('无效的卡号，请联系管理员获取');
+            return;
+        }
+        if(card.used) {
+            alert('该卡号已被使用');
+            return;
+        }
+
+        // 标记为已使用
+        card.used = true;
+        card.useTime = new Date().toISOString();
+        localStorage.setItem('talent_cards', JSON.stringify(cards));
+
+        startTest(input);
+    }
+
+    function startTest(code) {
         currentCard = code;
         document.getElementById('verifyPage').classList.add('hidden');
         document.getElementById('testPage').classList.remove('hidden');
         showQuestion();
     }
 
+    // ============ 答题逻辑 ============
     function showQuestion() {
         const q = questions[currentQuestion];
         const progress = ((currentQuestion + 1) / questions.length) * 100;
@@ -430,15 +494,20 @@
     function selectOption(val) {
         const q = questions[currentQuestion];
         answers[q.id] = val;
+        
         const opts = document.querySelectorAll('.option');
         opts.forEach(o => o.classList.remove('selected'));
         event.target.classList.add('selected');
-        setTimeout(() => { nextQ(true); }, 200);
+
+        setTimeout(() => {
+            nextQ(true);
+        }, 200);
     }
 
     function nextQ(isAuto=false) {
         if(!isAuto && answers[questions[currentQuestion].id] === undefined) return alert('请选择一个选项');
         if(isAuto && answers[questions[currentQuestion].id] === undefined) return;
+
         if (currentQuestion < questions.length - 1) {
             currentQuestion++;
             showQuestion();
@@ -508,138 +577,4 @@
             <div class="point-title" style="margin-top:12px;">
                 <span class="point-tag" style="background:#fff0f0; color:#d63031;">潜在瓶颈</span>
             </div>
-            <p class="analysis-point" style="margin-bottom:0;">但值得注意的是，你的 <strong>${dimensionNames[sorted[9][0]]}</strong> 得分较低，这可能是限制你目前职业突破的关键隐形短板。建议查看完整报告中的【避坑指南】。</p>
-        `;
-
-        window.scrollTo(0,0);
-    }
-
-    function scrollToPay() { document.getElementById('paySection').scrollIntoView({behavior:'smooth'}); }
-    function scrollToQR() { document.querySelector('.qr-section').scrollIntoView({behavior:'smooth'}); }
-    function aliPay() { window.location.href = CONFIG.ALIPAY_URL; }
-
-    function handleUpload(e) {
-        if(e.target.files.length === 0) return;
-        document.querySelector('.upload-btn').innerText = '⏳ 正在生成报告...';
-        fetch(`https://sctapi.ftqq.com/${CONFIG.SERVER_KEY}.send`, {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ title: '💰新订单-天赋测评-1.99', desp: `卡号:${currentCard}\n文件:${e.target.files[0].name}` })
-        }).catch(()=>{});
-
-        setTimeout(() => {
-            document.getElementById('resultPage').classList.add('hidden');
-            document.getElementById('detailedPage').classList.remove('hidden');
-            renderDetailedReport();
-            window.scrollTo(0,0);
-        }, 1500);
-    }
-
-    function renderDetailedReport() {
-        const scores = JSON.parse(sessionStorage.getItem('talentResult'));
-        const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
-        const top3 = sorted.slice(0,3);
-        const top3Names = top3.map(s => dimensionNames[s[0]]).join('、');
-
-        document.getElementById('detailedName').innerText = `你最具有 ${top3Names} 天赋`;
-        drawChart('radarChart2', scores);
-
-        document.getElementById('overallAnalysis').innerHTML = `
-            <p>你是一个<strong>${top3Names}型</strong>的人才。你的核心天赋得分为<strong style="color:#667eea">${top3[0][1]}分</strong>，处于人群前5%水平。</p>
-            <p>这种组合非常罕见，通常出现在该领域的专家或创新者身上。</p>
-        `;
-
-        let jobHtml = '<div class="job-category">';
-        top3.forEach((item, index) => {
-            const dimCode = item[0];
-            const dimName = dimensionNames[dimCode];
-            const jobs = careerDB[dimCode] || [];
-            jobHtml += `<div class="job-cat-title">基于【${dimName}】天赋推荐：</div><div class="job-list">`;
-            jobHtml += jobs.map(job => `<span class="job-tag">${job}</span>`).join('');
-            jobHtml += `</div><br>`;
-        });
-        jobHtml += '</div>';
-
-        document.getElementById('careerAdvice').innerHTML = jobHtml;
-
-        document.getElementById('strengthsAnalysis').innerHTML = `
-            <p><strong>核心优势：</strong>${dimensionNames[top3[0][0]]}能力让你能快速洞察本质，${dimensionNames[top3[1][0]]}能力助你高效执行。</p>
-            <p><strong>潜在风险：</strong>在${dimensionNames[sorted[9][0]]}（${sorted[9][1]}分）方面较弱，建议寻找互补型搭档。</p>
-        `;
-
-        document.getElementById('growthPath').innerHTML = `
-            <p><strong>短期（1-3个月）：</strong>通过专项训练强化${dimensionNames[top3[0][0]]}技能。</p>
-            <p><strong>中期（6-12个月）：</strong>尝试负责一个小项目，验证能力。</p>
-            <p><strong>长期（1-3年）：</strong>成为该领域的独立负责人或专家。</p>
-        `;
-    }
-
-    // 修复雷达图显示具体分数
-    function drawChart(id, scores) {
-        const ctx = document.getElementById(id);
-        const chartStatus = Chart.getChart(id);
-        if (chartStatus != undefined) { chartStatus.destroy(); }
-
-        const labels = Object.keys(dimensionNames).map(k => dimensionNames[k]);
-        const data = Object.keys(dimensionNames).map(k => scores[k]);
-        new Chart(ctx, {
-            type: 'radar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: '天赋得分',
-                    data: data,
-                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
-                    borderColor: '#667eea',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#667eea'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: { 
-                    r: { 
-                        min: 0, 
-                        max: 20, 
-                        ticks: {
-                            display: true,
-                            stepSize: 5
-                        },
-                        pointLabels: {
-                            font: {
-                                size: 11 // 修复: 稍微调小字体适配紧凑布局
-                            }
-                        }
-                    } 
-                },
-                plugins: { 
-                    legend: {display:false},
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.formattedValue + '分';
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    function copyWx() { 
-        navigator.clipboard.writeText("HCH91178").then(()=>{
-            alert('微信号已复制！\n即将跳转微信...'); 
-            setTimeout(()=>{ window.location.href="weixin://"; }, 500);
-        }).catch(()=>alert('复制失败，请手动复制')); 
-    }
-
-    function copyTxt(t) { navigator.clipboard.writeText(t).then(()=>alert('复制成功')).catch(()=>alert('复制失败')); }
-    function showAdminPanel() { 
-        const p = prompt('密码');
-        if(p===CONFIG.ADMIN_PWD) alert('登录成功');
-        else alert('密码错误');
-    }
-</script>
-</body>
-</html>
+            <p class="analysis-point" style="margin-bottom:0;">但值得注意的是，你的 <strong>${dimensionNames[sorted[9][0]]
