@@ -46,7 +46,7 @@
         .header h1 { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            color: #667eea; /* 兼容不支持渐变文字的浏览器 */
+            color: #667eea;
             font-size: 28px; font-weight: 800; margin-bottom: 8px;
         }
         .talent-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 25px 0; }
@@ -80,10 +80,48 @@
         .sc-name { font-size: 13px; color: #555; font-weight: bold; }
         .sc-val { font-size: 15px; color: #333; font-weight: 800; }
 
+        /* 原有的分析框样式 */
         .free-analysis-detail { background: #fff; border: 1px solid #eef2ff; border-radius: 12px; padding: 15px; margin: 15px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .analysis-point { margin-bottom: 10px; font-size: 14px; color: #444; line-height: 1.5; }
         .point-title { color: #667eea; font-weight: bold; font-size: 15px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
         .point-tag { background: #eef2ff; color: #667eea; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+
+        /* === 新增：图2 基础画像样式 === */
+        .persona-container {
+            border: 1px solid #eef2ff;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .core-title-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            /* 标题带图标 */
+            font-size: 16px; 
+            font-weight: 800;
+            color: #5a67d8;
+        }
+        .persona-item-box {
+            background: #fff;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .persona-desc {
+            font-size: 15px;
+            color: #4a5568;
+            line-height: 1.7;
+            text-align: justify;
+        }
+        .highlight-word {
+            color: #5a67d8;
+            font-weight: bold;
+        }
 
         .pay-card { background: #fff; border: 2px solid #ff7675; border-radius: 16px; padding: 25px 15px; text-align: center; margin-top: 30px; }
         .price-tag { font-size: 42px; font-weight: 800; color: #d63031; line-height: 1; margin: 10px 0; }
@@ -269,6 +307,9 @@
 
             <div class="free-analysis-detail" id="freeAnalysisBox"></div>
 
+            <div id="personaContainer" class="persona-container">
+                </div>
+
             <div class="blur-container">
                 <div class="blur-content">
                     <h3 style="color:#333; margin-bottom:10px;">💼 您的最佳职业匹配 (50+)</h3>
@@ -391,7 +432,28 @@
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
 <script>
+    // Safari 容错存储
+    var safeStorage = {
+        _mem: {},
+        isAvailable: function() {
+            try {
+                var x = '__storage_test__';
+                localStorage.setItem(x, x);
+                localStorage.removeItem(x);
+                return true;
+            } catch(e) { return false; }
+        }(),
+        getItem: function(key) {
+            return this.isAvailable ? localStorage.getItem(key) : this._mem[key];
+        },
+        setItem: function(key, val) {
+            if(this.isAvailable) localStorage.setItem(key, val);
+            else this._mem[key] = val;
+        }
+    };
+
     const CONFIG = {
         MASTER_CODE: "GEMINI-MASTER",
         ADMIN_PWD: "lss900201", 
@@ -403,8 +465,21 @@
         'A': '空间', 'B': '语言', 'C': '逻辑', 'D': '绘画', 'E': '美学',
         'F': '音乐', 'G': '人际', 'H': '创造', 'I': '动觉', 'J': '内省'
     };
+    
+    // 图2核心数据：标签与画像文案
+    const basicPersonaDB = {
+        'A': { type: '空间构建者', jobs: '建筑设计、工程、测绘等空间感职业' },
+        'B': { type: '语言表达者', jobs: '作家、编辑、自媒体、教师等表达类职业' },
+        'C': { type: '逻辑思考者', jobs: '程序员、数据分析、金融等逻辑类职业' },
+        'D': { type: '视觉艺术家', jobs: '插画、平面设计、摄影等视觉类职业' },
+        'E': { type: '美学鉴赏家', jobs: '时尚、造型、花艺等审美类职业' },
+        'F': { type: '音乐精灵', jobs: '音乐制作、歌手、声乐教育等听觉类职业' },
+        'G': { type: '社交达人', jobs: '销售、公关、管理等与人打交道的职业' },
+        'H': { type: '创新发明家', jobs: '创业、研发、策划等创意驱动类职业' },
+        'I': { type: '身体协调者', jobs: '运动教练、舞蹈、健身、手工艺等身体类职业' },
+        'J': { type: '深度哲思者', jobs: '咨询、研究、心理学等内省类职业' }
+    };
 
-    // 职业库
     const careerDB = {
         'A': ['建筑师', '室内设计师', '城市规划师', '景观设计师', '结构工程师', '测绘工程师', '3D建模师', '航空管制员', '地质勘探员', '舞台美术设计', '陈列设计师'],
         'B': ['作家', '编辑', '记者', '文案策划', '公关专员', '翻译', '律师', '编剧', '自媒体博主', '播客主播', '语文教师', '演讲培训师', '脱口秀演员'],
@@ -466,7 +541,6 @@
     let currentCard = '';
     let currentBatchCards = [];
 
-    // ============ 初始化：检查是否在微信 ============
     window.onload = function() {
         const ua = navigator.userAgent.toLowerCase();
         if(ua.indexOf('micromessenger') !== -1) {
@@ -474,18 +548,15 @@
         }
     }
 
-    // ============ 卡密验证逻辑 (24小时复用版) ============
     function verifyCard() {
         const input = document.getElementById('cardCode').value.trim().toUpperCase();
         if(!input) return alert('请输入卡号');
         
-        // 1. 万能卡密
         if(input === CONFIG.MASTER_CODE) {
             startTest(input);
             return;
         }
 
-        // 2. 格式验证
         const cardRegex = /^TF-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
         if (!cardRegex.test(input)) {
             alert('无效的卡号 (格式应为 TF-XXXX-XXXX)');
@@ -493,12 +564,7 @@
         }
 
         try {
-            // 3. 检查本机使用记录 (24小时逻辑)
-            // 使用新字段 talent_usage_records 存储 {卡号: 时间戳}
-            // 兼容性修正：使用原有的 talent_cards 存储验证状态以保持历史卡号有效性
-            // 24小时复用逻辑仅依赖本地存储，不影响卡号有效性
-            
-            let usageRecords = JSON.parse(localStorage.getItem('talent_usage_records_v4') || '{}');
+            let usageRecords = JSON.parse(safeStorage.getItem('talent_usage_records_v4') || '{}');
             const now = new Date().getTime();
 
             if (usageRecords[input]) {
@@ -506,7 +572,6 @@
                 const hoursPassed = (now - firstUseTime) / (1000 * 60 * 60);
                 
                 if (hoursPassed < 24) {
-                    console.log('卡号24小时内复用');
                     startTest(input);
                     return;
                 } else {
@@ -515,22 +580,20 @@
                 }
             }
             
-            // 4. 新卡首次使用
             usageRecords[input] = now;
-            localStorage.setItem('talent_usage_records_v4', JSON.stringify(usageRecords));
+            safeStorage.setItem('talent_usage_records_v4', JSON.stringify(usageRecords));
 
-            // 5. 后台状态更新 (为了兼容老卡号，必须使用 talent_cards)
-            const adminCards = JSON.parse(localStorage.getItem('talent_cards') || '[]');
+            const adminCards = JSON.parse(safeStorage.getItem('talent_cards') || '[]');
             const adminCardIndex = adminCards.findIndex(c => c.code === input);
             if(adminCardIndex !== -1) {
                 adminCards[adminCardIndex].used = true;
-                localStorage.setItem('talent_cards', JSON.stringify(adminCards));
+                safeStorage.setItem('talent_cards', JSON.stringify(adminCards));
             }
 
             startTest(input);
         } catch(e) {
             console.error(e);
-            alert('请尝试清除浏览器缓存后重试');
+            alert('系统存储异常，请关闭无痕浏览或清除缓存后重试');
         }
     }
 
@@ -541,7 +604,6 @@
         showQuestion();
     }
 
-    // ============ 答题逻辑 ============
     function showQuestion() {
         const q = questions[currentQuestion];
         const progress = ((currentQuestion + 1) / questions.length) * 100;
@@ -603,7 +665,7 @@
         Object.keys(scores).forEach(k => {
             scores[k] = Math.round(scores[k] / counts[k] * 4); 
         });
-        sessionStorage.setItem('talentResult', JSON.stringify(scores));
+        safeStorage.setItem('talentResult', JSON.stringify(scores));
         showResult(scores);
     }
 
@@ -617,16 +679,14 @@
 
         document.getElementById('resultName').innerText = `你最具有 ${top3Names} 天赋`;
         
-        // 兼容性修复：延迟绘制图表，并捕获错误
+        // 延时绘制图表
         setTimeout(() => {
-            try {
+            if(window.Chart) {
                 drawChart('radarChart', scores);
-            } catch(e) {
-                console.error("图表绘制失败:", e);
-                // 即使图表失败，也不影响后续显示
             }
         }, 300);
 
+        // 1. 生成10大维度得分小卡片
         let scoreHtml = '';
         sorted.forEach((item, index) => {
             const dimCode = item[0];
@@ -641,6 +701,7 @@
         });
         document.getElementById('allScoresGrid').innerHTML = scoreHtml;
 
+        // 2. 原有的文字分析（核心优势/潜在瓶颈）
         const top1Name = dimensionNames[top3[0][0]];
         const top2Name = dimensionNames[top3[1][0]];
         document.getElementById('freeAnalysisBox').innerHTML = `
@@ -654,6 +715,38 @@
             </div>
             <p class="analysis-point" style="margin-bottom:0;">但值得注意的是，你的 <strong>${dimensionNames[sorted[9][0]]}</strong> 得分较低，这可能是限制你目前职业突破的关键隐形短板。建议查看完整报告中的【避坑指南】。</p>
         `;
+
+        // 3. === 新增：复刻图2的“基础画像板块” ===
+        const top1Code = top3[0][0];
+        const top1Score = top3[0][1];
+        const top2Score = top3[1][1];
+        const top3Name = dimensionNames[top3[2][0]];
+        const top3Score = top3[2][1];
+        const personaData = basicPersonaDB[top1Code];
+        
+        const personaHtml = `
+            <div class="core-title-row">
+                <span style="font-size:24px; margin-right:5px;">🎯</span>
+                <span class="core-title-text" style="color:#667eea; font-weight:bold;">你的天赋特点 (基础版)</span>
+            </div>
+            
+            <div class="persona-item-box">
+                <div class="persona-desc">
+                    <strong>核心优势：</strong>你在 <span class="highlight-word">${top1Name}</span> 方面表现最为突出 (${top1Score}分)，这意味着你在相关领域有天然的优势。其次是 <span class="highlight-word">${top2Name}</span> (${top2Score}分) 和 <span class="highlight-word">${top3Name}</span> (${top3Score}分)。
+                </div>
+            </div>
+            
+            <div class="persona-item-box">
+                <div class="persona-label">性格类型：</div>
+                <div class="persona-value">${personaData.type}</div>
+            </div>
+            
+            <div class="persona-item-box">
+                <div class="persona-label">推荐方向：</div>
+                <div class="persona-value">${personaData.jobs}</div>
+            </div>
+        `;
+        document.getElementById('personaContainer').innerHTML = personaHtml;
 
         window.scrollTo(0,0);
     }
@@ -679,7 +772,7 @@
     }
 
     function renderDetailedReport() {
-        const scores = JSON.parse(sessionStorage.getItem('talentResult'));
+        const scores = JSON.parse(safeStorage.getItem('talentResult'));
         const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
         const top3 = sorted.slice(0,3);
         const top3Names = top3.map(s => dimensionNames[s[0]]).join('、');
@@ -687,9 +780,7 @@
         document.getElementById('detailedName').innerText = `你最具有 ${top3Names} 天赋`;
         
         setTimeout(() => {
-            try {
-                drawChart('radarChart2', scores);
-            } catch(e) { console.error(e); }
+            if(window.Chart) drawChart('radarChart2', scores);
         }, 300);
 
         document.getElementById('overallAnalysis').innerHTML = `
@@ -722,21 +813,18 @@
         `;
     }
 
-    // 兼容性修复：使用 Chart.js 2.x 语法
     function drawChart(id, scores) {
         const ctx = document.getElementById(id);
-        if(!ctx) return;
+        if(!ctx || !window.Chart) return;
         
-        // 销毁旧实例（防止重影）
-        // 在 Chart.js 2.x 中通常不需要像 3.x 那样显式销毁，但为了安全起见：
-        if (window[id] instanceof Chart) {
+        // 销毁旧实例
+        if(window[id] instanceof Chart) {
              window[id].destroy();
         }
 
         const labels = Object.keys(dimensionNames).map(k => dimensionNames[k]);
         const data = Object.keys(dimensionNames).map(k => scores[k]);
 
-        // Chart.js 2.9.4 配置语法
         window[id] = new Chart(ctx, {
             type: 'radar',
             data: {
@@ -753,20 +841,11 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                scale: {  // 注意：2.x 是 scale 不是 scales.r
-                    ticks: {
-                        beginAtZero: true,
-                        max: 20,
-                        stepSize: 5,
-                        display: true // 显示刻度
-                    },
-                    pointLabels: {
-                        fontSize: 11 // 2.x 语法
-                    }
+                scale: {
+                    ticks: { beginAtZero: true, max: 20, stepSize: 5, display: false },
+                    pointLabels: { fontSize: 11 }
                 },
-                legend: {
-                    display: false
-                },
+                legend: { display: false },
                 tooltips: {
                     enabled: true,
                     callbacks: {
@@ -779,61 +858,32 @@
         });
     }
 
-    // 兼容性修复：使用 execCommand 作为 Clipboard API 的回退
     function copyTextToClipboard(text) {
-        if (!navigator.clipboard) {
-            fallbackCopyTextToClipboard(text);
-            return;
-        }
-        navigator.clipboard.writeText(text).then(function() {
-            alert('复制成功！');
-        }, function(err) {
-            fallbackCopyTextToClipboard(text);
-        });
-    }
-
-    function fallbackCopyTextToClipboard(text) {
         var textArea = document.createElement("textarea");
         textArea.value = text;
-        
-        // 避免在移动端拉起键盘
+        textArea.style.position = "fixed"; 
+        textArea.style.left = "-9999px";
         textArea.style.top = "0";
-        textArea.style.left = "0";
-        textArea.style.position = "fixed";
-
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-
         try {
             var successful = document.execCommand('copy');
             if(successful) alert('复制成功！');
-            else alert('复制失败，请手动复制');
+            else alert('复制失败，请长按手动复制');
         } catch (err) {
-            alert('复制失败，请手动复制');
+            alert('复制失败，请长按手动复制');
         }
-
         document.body.removeChild(textArea);
     }
 
     function copyWx() { 
-        // 使用新的兼容性复制函数
-        if (!navigator.clipboard) {
-             fallbackCopyTextToClipboard("HCH91178");
-             setTimeout(()=>{ window.location.href="weixin://"; }, 500);
-             return;
-        }
-        navigator.clipboard.writeText("HCH91178").then(()=>{
-            alert('微信号已复制！\n即将跳转微信...'); 
-            setTimeout(()=>{ window.location.href="weixin://"; }, 500);
-        }).catch(()=>{
-             fallbackCopyTextToClipboard("HCH91178");
-        }); 
+        copyTextToClipboard("HCH91178");
+        setTimeout(()=>{ window.location.href="weixin://"; }, 1000);
     }
 
     function copyTxt(t) { copyTextToClipboard(t); }
     
-    // ============ 后台管理系统 ============
     function showAdminPanel() { 
         document.getElementById('verifyPage').classList.add('hidden');
         document.getElementById('adminPage').classList.remove('hidden');
@@ -854,7 +904,7 @@
         const count = parseInt(document.getElementById('genCount').value);
         if(!count || count < 1) return alert('请输入数量');
         
-        let cards = JSON.parse(localStorage.getItem('talent_cards') || '[]');
+        let cards = JSON.parse(safeStorage.getItem('talent_cards') || '[]');
         currentBatchCards = []; 
         
         for(let i=0; i<count; i++) {
@@ -864,14 +914,14 @@
         }
         
         cards = [...currentBatchCards, ...cards];
-        localStorage.setItem('talent_cards', JSON.stringify(cards));
+        safeStorage.setItem('talent_cards', JSON.stringify(cards));
         
         alert(`成功生成 ${count} 个卡密！\n请点击【导出本次生成】下载`);
         renderAdmin();
     }
 
     function renderAdmin() {
-        const cards = JSON.parse(localStorage.getItem('talent_cards') || '[]');
+        const cards = JSON.parse(safeStorage.getItem('talent_cards') || '[]');
         const validCount = cards.filter(c => !c.used).length;
         document.getElementById('validCount').innerText = validCount;
 
@@ -897,7 +947,7 @@
     }
 
     function exportAllCards() {
-        const cards = JSON.parse(localStorage.getItem('talent_cards') || '[]');
+        const cards = JSON.parse(safeStorage.getItem('talent_cards') || '[]');
         if(cards.length === 0) return alert('没有卡密');
         const text = cards.map(c => c.code).join('\n');
         const blob = new Blob([text], { type: 'text/plain' });
@@ -910,4 +960,3 @@
 </script>
 </body>
 </html>
-
